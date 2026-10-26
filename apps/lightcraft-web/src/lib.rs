@@ -8,7 +8,9 @@
 //!   ([`store`]); a new library starts with the procedural demo photos;
 //! - renders run in Web Workers, each a second instance of this module ([`wire`], `workers`), and
 //!   fall back to the main thread (one job per frame) if workers can't start;
-//! - export downloads the file through the browser.
+//! - export downloads the file through the browser;
+//! - a page that serves the app can offer its own file storage for Import and Export
+//!   (`window.craftStorage`, [`storage`]).
 //!
 //! `?bench` in the URL runs a scripted first-paint / slider-latency measurement and logs it to the
 //! console (see [`bench`]); `?store=idb` forces the IndexedDB backend, `?store=memory` disables
@@ -27,6 +29,8 @@ pub mod wire;
 mod backend;
 #[cfg(target_arch = "wasm32")]
 mod safety;
+#[cfg(target_arch = "wasm32")]
+mod storage;
 #[cfg(target_arch = "wasm32")]
 mod web;
 #[cfg(target_arch = "wasm32")]

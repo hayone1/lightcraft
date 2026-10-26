@@ -156,6 +156,11 @@ are the same in every version, so serve them with `Cache-Control: no-cache` (not
 - **Export downloads the file.** *Export…* (<kbd>⌘⇧E</kbd>) runs the same `app.export` path as
   the desktop app (`lightcraft_engine::export`: JPEG/PNG/TIFF/WebP, sizing, naming). The host's
   `write` service hands each file to the browser as a download instead of writing it to disk.
+- **A page's own storage.** A page that serves LightCraft can set `window.craftStorage` (the
+  contract every Craft app shares, in craft-libs' `craft-web-host`). Then Import offers a photo
+  from that storage, and Export asks where each file goes: a path there, this device (a
+  download), or nowhere. Exports to the page's storage go one at a time; a failed one shows a
+  notice. Without `window.craftStorage` nothing changes (`apps/lightcraft-web/src/storage.rs`).
 - **Automation.** `await lightcraft.command("library.info", "{}")` runs any engine or UI command
   by id on the next frame and resolves to the JSON result (`web.stats` reports storage, workers
   and the render queue). The params are a JSON object; empty text and JSON `null` mean `{}`

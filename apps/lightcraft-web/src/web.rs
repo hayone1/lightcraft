@@ -100,7 +100,7 @@ impl Options {
 }
 
 /// Store a picked/dropped file (bytes into browser storage, then queue its import).
-async fn store_file(originals: Originals, backend: Option<Backend>, name: String, bytes: Vec<u8>, ctx: egui::Context) {
+pub(crate) async fn store_file(originals: Originals, backend: Option<Backend>, name: String, bytes: Vec<u8>, ctx: egui::Context) {
     let hash = content_hash(&bytes);
     if let Some(b) = &backend
         && let Err(e) = b.write(&storage_key(&hash), &bytes).await
@@ -214,7 +214,9 @@ fn services(originals: Originals, backend: Option<Backend>, files: Files, frozen
             Ok(json!({"started": true}))
         })),
         pick_files: Some(Box::new(move || {
-            open_picker(originals.clone(), backend.clone(), ctx.clone());
+            // A page that serves the app may offer its own file storage (`window.craftStorage`).
+            let (o, b, c) = (originals.clone(), backend.clone(), ctx.clone());
+            crate::storage::pick(originals.clone(), backend.clone(), ctx.clone(), accept_list(), move || open_picker(o, b, c));
             Vec::new() // files arrive asynchronously and are imported on a later frame
         })),
         pick_denoise_model: None,
@@ -233,7 +235,8 @@ fn services(originals: Originals, backend: Option<Backend>, files: Files, frozen
         save_slideshow_template: None,
         pick_print_templates: None,
         save_print_template: None,
-        write: Some(Box::new(download)),
+        // Exports go to the page's own storage when it offers one (`window.craftStorage`).
+        write: Some(Box::new(|path: &str, bytes: &[u8]| crate::storage::export(path, bytes, download))),
         // the browser download path has no meaningful create-new file write; the control channel
         // (and therefore screenshot paths) is not available on the web
         write_new: None,

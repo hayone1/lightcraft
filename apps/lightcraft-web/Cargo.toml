@@ -24,6 +24,7 @@ log = { workspace = true }
 crc32fast = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+craft-web-host = { workspace = true }
 eframe = { workspace = true, features = ["default_fonts", "glow"] }
 egui = { workspace = true }
 wasm-bindgen = { workspace = true }

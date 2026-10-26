@@ -168,6 +168,12 @@ impl Originals {
 }
 
 /// File name part of an export path (the browser download name).
+/// A file picker's accept list (`.jpg,.png,…`) as extensions without dots, for a host's Open
+/// dialog (`craftStorage.chooseOpen`).
+pub fn accept_extensions(accept: &str) -> Vec<String> {
+    accept.split(',').map(|e| e.trim().trim_start_matches('.').to_string()).filter(|e| !e.is_empty()).collect()
+}
+
 pub fn download_name(path: &str) -> &str {
     path.rsplit(['/', '\\']).next().filter(|n| !n.is_empty()).unwrap_or("export.png")
 }
@@ -235,6 +241,12 @@ mod tests {
         assert_eq!(p.content_hash.as_deref(), Some(hash.as_str()), "storage key = catalog content hash");
         let out = session.render_now(id, 20, 20).unwrap();
         assert_eq!(out.image.width, 20);
+    }
+
+    #[test]
+    fn accept_lists_become_extensions() {
+        assert_eq!(accept_extensions(".jpg, .png,,.dng"), ["jpg", "png", "dng"]);
+        assert!(accept_extensions("").is_empty());
     }
 
     #[test]
